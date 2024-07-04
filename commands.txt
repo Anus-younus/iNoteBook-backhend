@@ -1,0 +1,3 @@
+1.install express | command npm i express
+2.install mongose | command npm i mongose
+3.install nodemon | command npm i nodemon
