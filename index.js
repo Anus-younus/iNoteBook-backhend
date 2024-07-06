@@ -11,7 +11,7 @@ app.use(express.json())
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/notes', require('./routes/notes'));
 
-app.get('/', (res, req) =>  {
+app.get('/', (res, req) => {
     res.send("hello world");
 })
 
