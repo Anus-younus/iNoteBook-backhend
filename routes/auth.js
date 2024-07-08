@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 let jData = "AnusTata"
 
-router.post("/", [
+router.post("/createuser", [
     body('name', "Your name is inavalied").isLength({ min: 3 }),
     body('email', "Your email is inavalied").isEmail(),
     body('password', "Your password is inavalied").isLength({ min: 5 })
@@ -39,6 +39,39 @@ router.post("/", [
     const authToken = jwt.sign(data, jData)
     res.json({authToken})
 });
+
+router.post("/login", [
+    body('email', "Your email is inavalied").isEmail(),
+    body('password', "Your password is inavalied").exists()
+], async (req, res) => {
+    const errors = validationResult(req)
+    if(!errors.isEmpty()){
+        return res.status(400).json({errors: errors.array()})
+    }
+
+    const {email, password} = req.body
+
+    try {
+        const user = await User.findOne({email})
+        if(!user){
+            return res.status(400).json({erros: "Please try to login with correct credentialy"})
+        }
+
+        const passwordCompare = await bcrypt.compare(password, user.password)
+        if(!passwordCompare){
+            return res.status(400).json({errors: "Please enter a valied password"})
+        }
+        const data = {
+            user:{
+                id: user.id
+            }
+        }
+        const authToken = jwt.sign(data, jData)
+        res.json({authToken})
+    } catch (error) {
+        
+    }
+})
 
 
 module.exports = router
