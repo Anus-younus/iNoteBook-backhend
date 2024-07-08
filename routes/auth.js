@@ -2,6 +2,9 @@ const exprees = require("express");
 const User = require('../modules/User');
 const { body, validationResult } = require("express-validator");
 const router = exprees.Router();
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
+let jData = "AnusTata"
 
 router.post("/", [
     body('name', "Your name is inavalied").isLength({ min: 3 }),
@@ -20,11 +23,21 @@ router.post("/", [
         return res.status(400).json({ errors: "Sorry your email is already exixst" })
     }
     console.log(req.body);
-    const user = User(req.body)
-    user.save()
-    res.status(200).send(req.body);
-    res.json({ erros: 'Please Enter a valied email' })
-    res.json("Nice")
+    const salt = await bcrypt.genSalt(10)
+    secPass = await bcrypt.hash(req.body.password, salt)
+    let user = User(req.body)
+    user = await User.create({
+        name: req.body.name,
+        email: req.body.email,
+        password: secPass
+    })
+    const data = {
+        user:{
+            id: user.id
+        }
+    }
+    const authToken = jwt.sign(data, jData)
+    res.json({authToken})
 });
 
 
